@@ -1,0 +1,115 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/css/style.css')
+    script(src='https://cdn.jsdelivr.net/gh/nextapps-de/flexsearch@master/dist/flexsearch.min.js')
+  body
+    table
+        tr
+            td(style='position: relative')
+            input#autocomplete(type='text')
+            input#userinput(type='text' placeholder='Search ...')
+        #suggestions
+
+
+script.
+    var data = !{JSON.stringify(data)}
+    if (data) {
+        //- var index = FlexSearch.create({
+        //-     encode: "advanced",
+        //-     tokenize: "reverse",
+        //-     suggest: true,
+        //-     cache: true
+        //- });
+
+        //- for (var i=0; i<food.length; i++) {
+        //-     index.add(i, food[i]);
+        //- }
+
+        (function(){
+            var index = new FlexSearch({
+                encode: "advanced",
+                tokenize: "reverse",
+                suggest: true,
+                cache: true
+            });
+
+            for(var i = 0; i < data.length; i++){
+                var text = data[i].name;
+                index.add(i, text);
+            }
+
+            var suggestions = document.getElementById("suggestions");
+            var autocomplete = document.getElementById("autocomplete");
+            var userinput = document.getElementById("userinput");
+
+            userinput.addEventListener("input", show_results, true);
+            userinput.addEventListener("keyup", accept_autocomplete, true);
+            suggestions.addEventListener("click", accept_suggestion, true);
+
+            function show_results(){
+
+                var value = this.value;
+                var results = index.search(value, 25);
+                var entry, childs = suggestions.childNodes;
+                var i = 0, len = results.length;
+
+                for(; i < len; i++){
+
+                    entry = childs[i];
+
+                    if(!entry){
+                        entry = document.createElement("div");
+                        suggestions.appendChild(entry);
+                    }
+
+                    try {
+                        console.log(entry);
+                        entry.textContent = data[results[i]].name;
+                    } catch (e) {
+                        console.log(e);
+                    }
+                }
+
+                while(childs.length > len){
+
+                    suggestions.removeChild(childs[i])
+                }
+
+                var first_result = data[results[0]].name;
+                var match = first_result && first_result.toLowerCase().indexOf(value.toLowerCase());
+
+                if(first_result && (match !== -1)){
+
+                    autocomplete.value = value + first_result.substring(match + value.length);
+                    autocomplete.current = first_result;
+                }
+                else{
+                    autocomplete.value = autocomplete.current = value;
+                }
+            }
+
+            function accept_autocomplete(event){
+
+                if((event || window.event).keyCode === 13) {
+
+                    this.value = autocomplete.value = autocomplete.current;
+                }
+            }
+
+            function accept_suggestion(event){
+
+                var target = (event || window.event).target;
+
+                userinput.value = autocomplete.value = target.textContent;
+
+                while(suggestions.lastChild){
+
+                    suggestions.removeChild(suggestions.lastChild);
+                }
+
+                return false;
+            }
+        }());
+    }
