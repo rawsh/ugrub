@@ -14,8 +14,9 @@ app.set("view engine", "pug");
 app.set("views", path.join(__dirname, "views"));
 
 // homepage
-app.get("/", indexRouter);
-app.get("/updatedb", dbRouter);
+app.get("/*", indexRouter);
+app.get("/updatedb/*", dbRouter);
+app.get("/search/*", dbRouter);
 app.get("/search", dbRouter);
 
 // 404

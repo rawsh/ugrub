@@ -1,22 +1,13 @@
 /* inputs */
+html, body, .app, .container {
+    height: 100%;
+}
+
 body {
     margin: 0;
-    overflow-y:scroll;
 }
 
-#wrapper {
-    display: flex;
-    flex-direction: column;
-}
-
-#search {
-    width: 300px;
-    margin: 0 auto;
-    display: block;
-    height: auto;
-}
-
-#search {
+.app {
     background: url("http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-hal.jpg") no-repeat -9999px -9999px;
     background: url("http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-veg.jpg") no-repeat -9999px -9999px,
             url("http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-antibfr.jpg") no-repeat -9999px -9999px,
@@ -26,16 +17,32 @@ body {
             url("http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-whlgrn.jpg") no-repeat -9999px -9999px;
 }
 
-input{
+#wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    max-height: 100%;
+}
+
+#search {
+    flex: 0;
+    align-self: center;
+    text-align: center;
+    width: 100%;
+    padding: 10px 0;
+}
+
+#userinput {
     width: 300px;
     border-radius: 4px;
     outline: none;
     background-color: transparent;
     -webkit-appearance: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 }
 
-input{
-    margin: 10px;
+#userinput {
+    margin-bottom: -5px;
     padding: 8px;
     box-sizing: border-box;
 }
@@ -46,6 +53,8 @@ input{
     max-width: 1335px;
     min-width: 100%;
     margin: auto;
+    flex: 1;
+    overflow-y:scroll;
 }
 
 #suggestions {
@@ -74,7 +83,7 @@ input{
     width: calc(100% - 30px);
     height: calc(100% - 30px);
     position: absolute;
-    box-shadow: 5px 5px 10px black;
+    /* box-shadow: 5px 5px 10px black; */
 }
 
 .grid-item:after {
@@ -99,42 +108,184 @@ input{
     text-align: center;
 }
 
-.grid-item-ingredients {
-    width: 100%;
+.grid-item-info {
+    padding: 5px;
     flex: 1;
 }
 
-.grid-item-diet {
+.grid-item-ingredients {
     width: 100%;
+    flex: 0;
+}
+
+.grid-item-diet {
+    width: calc(100% - 10px);
     max-height: 60px;
-    padding: 8px;
+    padding: 5px;
     flex: 0;
 }
 
 .grid-item-diet img {
     width: auto;
-    height: 100%;
+    height: calc(100% - 6px);
+    padding: 3px;
 }
 
 /* grid media qs */
 
-@media(max-width: 1333px) {
+@media(max-width: 1533px) {
     .grid-item {
         flex-basis: 33.33%;
     }
 }
-@media(max-width: 1073px) {
+@media(max-width: 1273px) {
     .grid-item {
         flex-basis: 33.33%;
     }
 }
-@media(max-width: 815px) {
+@media(max-width: 1015px) {
     .grid-item {
         flex-basis: 50%;
     }
 }
-@media(max-width: 555px) {
+@media(max-width: 755px) {
+    body {
+        font-size: 12px;
+        overflow-y: hidden;
+    }
     .grid-item {
         flex-basis: 100%;
     }
+    .app {
+        flex-direction: column !important;
+    }
+    #type, #location {
+        flex-direction: row !important;
+        flex-wrap: wrap;
+    }
+    #filters {
+        margin: auto;
+    }
+    #userinput {
+        width: calc(100% - 20px);
+    }
+    #wrapper {
+        max-height: calc(100% - 220px);
+    }
+}
+
+/* app */
+
+.app {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+#filters {
+    padding: 10px;
+    flex: 0;
+}
+
+/* Styling Checkbox Starts */
+.nav {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex: 1;
+    padding: 10px;
+}
+
+#type, #location {
+    display: flex;
+    flex-direction: column;
+    align-self: flex-end;
+    flex: 1;
+    padding: 10px;
+}
+
+.input-title {
+    clear: both;
+    flex: 1;
+    padding-left: 8px;
+    margin-top: 3px;
+}
+
+.checkbox-container {
+    flex: 0;
+    display: flex;
+    flex-direction: row;
+    padding: 7px 7px;
+}
+
+.checkbox-label {
+    display: block;
+    position: relative;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 24px;
+    height: 24px;
+    width: 24px;
+    flex-grow: 0;
+}
+
+.checkbox-label input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.checkbox-label .checkbox-custom {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 22px;
+    width: 22px;
+    background-color: transparent;
+    border-radius: 5px;
+    border: 2px solid black;
+}
+
+
+.checkbox-label input:checked ~ .checkbox-custom {
+    background-color: #009BFF;
+    border-radius: 5px;
+    -webkit-transform: rotate(0deg) scale(1);
+    -ms-transform: rotate(0deg) scale(1);
+    transform: rotate(0deg) scale(1);
+    opacity:1;
+    border: 2px solid black;
+}
+
+
+.checkbox-label .checkbox-custom::after {
+    position: absolute;
+    content: "";
+    left: 10px;
+    top: 10px;
+    height: 0px;
+    width: 0px;
+    border-radius: 5px;
+    border: solid #009BFF;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(20deg) scale(0);
+    -ms-transform: rotate(20deg) scale(0);
+    transform: rotate(20deg) scale(0);
+    opacity:1;
+}
+
+
+.checkbox-label input:checked ~ .checkbox-custom::after {
+  -webkit-transform: rotate(45deg) scale(1);
+  -ms-transform: rotate(45deg) scale(1);
+  transform: rotate(45deg) scale(1);
+  opacity:1;
+  left: 7px;
+  top: 2px;
+  width: 6px;
+  height: 12px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  background-color: transparent;
+  border-radius: 0;
 }

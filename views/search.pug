@@ -1,0 +1,304 @@
+doctype html
+html
+  head
+    title= title
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    link(rel='stylesheet', href='/css/style.css')
+    script(src='https://cdn.jsdelivr.net/gh/nextapps-de/flexsearch@master/dist/flexsearch.min.js')
+  body
+    div.app
+        div#filters
+            div#location
+                div.checkbox-container
+                    label.checkbox-label
+                        input#checkfrank(type="checkbox")
+                        span.checkbox-custom
+                    div.input-title frank
+                div.checkbox-container
+                    label.checkbox-label
+                        input#checkwoo(type="checkbox")
+                        span.checkbox-custom
+                    div.input-title woo
+                div.checkbox-container
+                    label.checkbox-label
+                        input#checkberk(type="checkbox")
+                        span.checkbox-custom
+                    div.input-title berk
+                div.checkbox-container
+                    label.checkbox-label
+                        input#checkhamp(type="checkbox")
+                        span.checkbox-custom
+                    div.input-title hamp
+            div#type
+                div.checkbox-container
+                    label.checkbox-label
+                        input#checkbreakfast(type="checkbox")
+                        span.checkbox-custom
+                    div.input-title breakfast
+                div.checkbox-container
+                    label.checkbox-label
+                        input#checklunch(type="checkbox")
+                        span.checkbox-custom
+                    div.input-title lunch
+                div.checkbox-container
+                    label.checkbox-label
+                        input#checkdinner(type="checkbox")
+                        span.checkbox-custom
+                    div.input-title dinner
+                div.checkbox-container
+                    label.checkbox-label
+                        input#checklatenight(type="checkbox")
+                        span.checkbox-custom
+                    div.input-title late
+                div.checkbox-container
+                    label.checkbox-label
+                        input#checkgrabngo(type="checkbox")
+                        span.checkbox-custom
+                    div.input-title grabNgo
+        div#wrapper
+            div#search
+                input#userinput(type='text' placeholder='Search ...')
+                div#autocomplete(type='text')
+            div.container
+                div#suggestions
+        
+script.
+    const name2url = JSON.parse("{\"Halal\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-hal.jpg\",\"Vegetarian\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-veg.jpg\",\"Antibiotic Free\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-antibfr.jpg\",\"Sustainable\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-sus.jpg\",\"Local\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-loc.jpg\",\"Vegan\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-vegan.jpg\",\"Whole Grain\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-whlgrn.jpg\"}");
+    const num2location = {
+        "1": "Worcester",
+        "2": "Frank",
+        "3": "Hampshire",
+        "4": "Berkshire"
+    };
+    const type2name = {
+        "grabngo": "Grab N Go",
+        "late night": "Late Night",
+        "breakfast": "Breakfast",
+        "lunch": "Lunch",
+        "dinner": "Dinner"
+    };
+    //- var images = [];
+    //- function preload() {
+    //-     for (var i = 0; i < arguments.length; i++) {
+    //-         images[i] = new Image();
+    //-         images[i].src = preload.arguments[i];
+    //-     }
+    //- }
+
+    //-- usage --//
+    //- preload(Object.values(name2url));
+    var data = !{JSON.stringify(data)}
+    if (data) {        
+        (function(){
+            var index = new FlexSearch({
+                encode: "advanced",
+                tokenize: "reverse",
+                suggest: false,
+                cache: true
+            });
+
+            var locationFilter = localStorage.getItem('locationFilter');
+            var typeFilter = localStorage.getItem('typeFilter');
+
+            if (null === locationFilter) {
+                locationFilter = {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                };
+                localStorage.setItem('locationFilter', JSON.stringify(locationFilter));
+            } else {
+                locationFilter = JSON.parse(locationFilter);
+            }
+            document.getElementById("checkwoo").checked = locationFilter["1"];
+            document.getElementById("checkfrank").checked = locationFilter["2"];
+            document.getElementById("checkhamp").checked = locationFilter["3"];
+            document.getElementById("checkberk").checked = locationFilter["4"];
+
+            if (null === typeFilter) {
+                typeFilter = {
+                    "breakfast": true,
+                    "lunch": true,
+                    "dinner": true,
+                    "late night": false,
+                    "grabngo": false
+                };
+                localStorage.setItem('typeFilter', JSON.stringify(typeFilter));
+            } else {
+                typeFilter = JSON.parse(typeFilter);
+            }
+            document.getElementById("checkbreakfast").checked = typeFilter["breakfast"];
+            document.getElementById("checklunch").checked = typeFilter["lunch"];
+            document.getElementById("checkdinner").checked = typeFilter["dinner"];
+            document.getElementById("checklatenight").checked = typeFilter["late night"];
+            document.getElementById("checkgrabngo").checked = typeFilter["grabngo"];
+
+            // other bindings
+
+            var suggestions = document.getElementById("suggestions");
+            var userinput = document.getElementById("userinput");
+            var autocomplete = document.getElementById("autocomplete");
+
+            userinput.addEventListener("input", show_results, true);
+            // suggestions.addEventListener("click", accept_suggestion, true);
+            userinput.addEventListener("keyup", accept_autocomplete, true);
+
+            // filtering
+
+            var typeContainer = document.getElementById("type");
+            var locationContainer = document.getElementById("location");
+
+            function updateFilters() {
+                locationFilter = {
+                    "1": document.getElementById("checkwoo").checked, 
+                    "2": document.getElementById("checkfrank").checked, 
+                    "3": document.getElementById("checkhamp").checked,
+                    "4": document.getElementById("checkberk").checked
+                };
+                typeFilter = {
+                    "breakfast": document.getElementById("checkbreakfast").checked,
+                    "lunch": document.getElementById("checklunch").checked,
+                    "dinner": document.getElementById("checkdinner").checked,
+                    "late night": document.getElementById("checklatenight").checked,
+                    "grabngo": document.getElementById("checkgrabngo").checked
+                };
+                localStorage.setItem('locationFilter', JSON.stringify(locationFilter));
+                localStorage.setItem('typeFilter', JSON.stringify(typeFilter));
+                show_results();
+            }
+
+            typeContainer.addEventListener('click', function (evt) {
+                if (evt.target.type === 'checkbox') {
+                    updateFilters();
+                }
+            }, false);
+            locationContainer.addEventListener('click', function (evt) {
+                if (evt.target.type === 'checkbox') {
+                    updateFilters();
+                }
+            }, false);
+
+            // add data to the search
+
+            for(var i = 0; i < data.length; i++){
+                var text = data[i].name;
+                index.add(i, text);
+
+                //- entry = document.createElement("div");
+                //- suggestions.appendChild(entry);
+                //- entry.textContent = data[i].name;
+            }
+
+            function show_results() {
+                var searchform = document.getElementById("userinput");
+                var value = searchform.value;
+                var results = index.search(value, {
+                    limit: 50,
+                    suggest: false
+                });
+
+                var entry, childs = suggestions.childNodes;
+                var i = 0, len = results.length;
+
+                for(; i < len; i++){
+                    entry = childs[i];
+                    var match = locationFilter[data[results[i]].location] && typeFilter[data[results[i]].type];
+
+                    if(!entry && match){
+                        entry = document.createElement("div");
+                        entry.classList.add("grid-item");
+                        entry.id = "l" + data[results[i]].location + "n" + i;
+                        
+                        let con = document.createElement("div");
+                        con.classList.add("grid-item-container");
+
+                        let ingredients = document.createElement("div");
+                        ingredients.classList.add("grid-item-ingredients");
+
+                        let location = document.createElement("div");
+                        let category = document.createElement("div");
+                        let info = document.createElement("div");
+                        info.classList.add("grid-item-info");
+                        info.appendChild(location);
+                        info.appendChild(category);
+
+                        let diet = document.createElement("div");
+                        diet.classList.add("grid-item-diet");
+
+                        entry.appendChild(con);
+                        entry.appendChild(ingredients);
+                        entry.appendChild(info);
+                        entry.appendChild(diet);
+                        suggestions.appendChild(entry);
+                    }
+
+                    try {
+                        if (entry && match) {
+                            // console.log(data[results[i]]);
+                            entry.firstChild.textContent = data[results[i]].name;
+                            entry.children[2].children[0].textContent = num2location[data[results[i]].location];
+                            entry.children[2].children[1].textContent = type2name[data[results[i]].type] + " - " + data[results[i]].category;
+
+                            let diet = data[results[i]].props;
+
+                            if (diet) {
+                                // console.log(diet.length);
+                                entry.lastChild.textContent = '';
+                                diet.forEach(function (val) {
+                                    if (name2url[val]) {
+                                        var img = new Image();
+                                        img.src = name2url[val];
+                                        img.title = val;
+                                        img.classList.add("diet-img");
+                                        entry.lastChild.append(img);
+                                    }
+                                })
+                            }
+                        }
+                    } catch (e) {
+                        //console.log(e);
+                    }
+                }
+
+                while(childs.length > len){
+                    childs[i].remove();
+                    //suggestions.removeChild(childs[i])
+                }
+                
+                // autocomplete stuff
+                if (data[results[0]]) {
+                    var first_result = data[results[0]].name;
+                    var match = first_result && first_result.toLowerCase().indexOf(value.toLowerCase());
+
+                    if(first_result && (match !== -1)){
+                        autocomplete.value = value + first_result.substring(match + value.length);
+                        autocomplete.current = first_result;
+                    }
+                    else{
+                        autocomplete.value = autocomplete.current = value;
+                    }
+                }
+            }
+
+            function accept_autocomplete(event){
+                if((event || window.event).keyCode === 13) {
+                    this.value = autocomplete.value = autocomplete.current;
+                }
+            }
+
+            //- function accept_suggestion(event){
+            //-     var target = (event || window.event).target;
+            //-     userinput.value = autocomplete.value = target.textContent;
+
+            //-     while (suggestions.children.length > 1) {
+            //-         if (suggestions.lastChild.innerText !== autocomplete.value) {
+            //-             suggestions.removeChild(suggestions.lastChild);
+            //-         } else if (suggestions.firstChild !== suggestions.lastChild) {
+            //-             suggestions.removeChild(suggestions.firstChild);
+            //-         }
+            //-     }
+            //-     return false;
+            //- }
+        }());
+    }
