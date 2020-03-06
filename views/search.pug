@@ -125,17 +125,15 @@ script.
             var typeFilter = localStorage.getItem('typeFilter');
 
             function add_all_current(index) {
-                var res = []; // hacky
                 for(var i = 0; i < data.length; i++){
+                    var text = data[i].name;
                     if (index) {
                         index.add(i, text);
                     }
-                    var text = data[i].name;
-                    var type = data[i].type;
-                    res.push(i);
-                    add_node({}, i, res);
                 }
             }
+
+            add_all_current(index);
 
             if (null === locationFilter) {
                 locationFilter = {
@@ -309,7 +307,7 @@ script.
                             try {
                                 nut.getElementsByClassName(rep[j])[0].textContent = data[results[i]].attr[rep[j]];
                             } catch (e) {
-                                //console.log(e);
+                                // console.log(e);
                             }
                         }
 
@@ -354,6 +352,7 @@ script.
                 var value = searchform.value;
 
                 function removeDups(results) {
+                    // console.log(results);
                     var entry, childs = suggestions.childNodes;
                     var i = 0, len = results.length;
                     var resIds = Object.values(results);
@@ -417,6 +416,8 @@ script.
                     //-     cappin = false;
                     //- }
 
+                    // console.log(value);
+
                     index.search(value, {
                         limit: 30,
                         suggest: false
@@ -424,7 +425,7 @@ script.
                 }
             }
 
-            show_results();
+            show_results()
 
             //- function accept_autocomplete(event){
             //-     if((event || window.event).keyCode === 13) {
