@@ -1,6 +1,6 @@
 var express = require("express");
 var path = require('path');
-const port = 3000;
+const port = 8080;
 
 var indexRouter = require('./routes/index');
 var dbRouter = require('./routes/db');
