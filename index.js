@@ -15,7 +15,6 @@ app.set("views", path.join(__dirname, "views"));
 
 // homepage
 app.get("/", dbRouter);
-app.get("/*", indexRouter);
 app.get("/updatedb/*", dbRouter);
 app.get("/search/*", dbRouter);
 
