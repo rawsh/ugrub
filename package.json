@@ -12,19 +12,16 @@
     "html2json": "^1.0.2",
     "node-cron": "^2.0.3",
     "node-fetch": "^2.6.0",
+    "pm2": "^4.2.3",
     "pug": "^2.0.4",
     "sanitize-html": "^1.22.0"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "pm2 start index.js",
+    "dev": "npm start"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ptkenny/ugrub.git"
-  },
-  "author": "",
+  "author": "Robert Washbourne",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/ptkenny/ugrub/issues"
