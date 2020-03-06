@@ -5,6 +5,11 @@ html, body, .app, .container {
 
 body {
     margin: 0;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    font-size: 1rem;
+    font-weight: normal;
+    line-height: 1.5;
+    color:#2e3234;
 }
 
 .app {
@@ -29,11 +34,11 @@ body {
     align-self: center;
     text-align: center;
     width: 100%;
-    padding: 10px 0;
+    padding: 15px 0 20px 0;
 }
 
 #userinput {
-    width: 300px;
+    width: 350px;
     border-radius: 4px;
     outline: none;
     background-color: transparent;
@@ -58,7 +63,6 @@ body {
 }
 
 #suggestions {
-    height: 100%;
     width: 100%;
     display: flex;
     flex-flow: row wrap;
@@ -66,8 +70,9 @@ body {
 }
 
 .grid-item {
-    height: 300px;
+    height: 280px;
     width: 220px;
+    min-width: 220px;
     padding: 15px;
     flex: 0 0 20%;
     flex-basis: 20%;
@@ -103,25 +108,40 @@ body {
     height: 100%;
     background: #eee;
     position: relative;
+    text-align: center;
     padding: 10px;
     flex: 0;
-    text-align: center;
+    order: -1;
 }
 
-.grid-item-info {
-    padding: 5px;
+
+.grid-item-info > div:nth-child(2) {
     flex: 1;
+    text-align: right;
+}
+.grid-item-info {
+    padding: 8px;
+    flex: 1;
+    order: -1;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .grid-item-ingredients {
     width: 100%;
     flex: 0;
+    max-height: 69px;
+    overflow: hidden;
+    min-height: 69px;
+    /* border-top: 2px solid rgba(0,0,0,0.2); */
+    border-bottom: 2px solid rgba(0,0,0,0.2);
 }
 
 .grid-item-diet {
     width: calc(100% - 10px);
-    max-height: 60px;
-    padding: 5px;
+    max-height: 50px;
+    min-height: 50px;
+    padding: 6px;
     flex: 0;
 }
 
@@ -140,7 +160,7 @@ body {
 }
 @media(max-width: 1273px) {
     .grid-item {
-        flex-basis: 33.33%;
+        flex-basis: 42.0%;
     }
 }
 @media(max-width: 1015px) {
@@ -150,7 +170,6 @@ body {
 }
 @media(max-width: 755px) {
     body {
-        font-size: 12px;
         overflow-y: hidden;
     }
     .grid-item {
@@ -221,7 +240,6 @@ body {
 .checkbox-label {
     display: block;
     position: relative;
-    cursor: pointer;
     font-size: 18px;
     line-height: 24px;
     height: 24px;
@@ -288,4 +306,71 @@ body {
   border-width: 0 2px 2px 0;
   background-color: transparent;
   border-radius: 0;
+}
+
+/* table for nutrition shit */
+
+.performance-facts {
+padding: 8px;
+padding-top: 2px;
+}
+.performance-facts table {
+border-collapse: collapse;
+}
+
+.performance-facts__title {
+font-weight: bold;
+margin: 0 0 0.25rem 0;
+}
+
+.performance-facts__table, .performance-facts__table--small, .performance-facts__table--grid {
+width: 100%;
+}
+.performance-facts__table thead tr th, .performance-facts__table--small thead tr th, .performance-facts__table--grid thead tr th, .performance-facts__table thead tr td, .performance-facts__table--small thead tr td, .performance-facts__table--grid thead tr td {
+border: 0;
+}
+.performance-facts__table th, .performance-facts__table--small th, .performance-facts__table--grid th, .performance-facts__table td, .performance-facts__table--small td, .performance-facts__table--grid td {
+font-weight: normal;
+text-align: left;
+padding: 0.25rem 0;
+border-top: 1px solid rgba(0,0,0,0.15);
+white-space: nowrap;
+}
+.performance-facts__table td:last-child, .performance-facts__table--small td:last-child, .performance-facts__table--grid td:last-child {
+text-align: right;
+}
+.performance-facts__table .blank-cell, .performance-facts__table--small .blank-cell, .performance-facts__table--grid .blank-cell {
+width: 1rem;
+border-top: 0;
+}
+.performance-facts__table .thick-row th, .performance-facts__table--small .thick-row th, .performance-facts__table--grid .thick-row th, .performance-facts__table .thick-row td, .performance-facts__table--small .thick-row td, .performance-facts__table--grid .thick-row td {
+border-top-width: 3px;
+}
+
+/* .small-info {
+font-size: 8px;
+} */
+
+.performance-facts__table--grid {
+margin: 0 0 0.5rem 0;
+}
+.performance-facts__table--grid td:last-child {
+text-align: left;
+}
+.performance-facts__table--grid td:last-child::before {
+content: "•";
+font-weight: bold;
+margin: 0 0.25rem 0 0;
+}
+
+.text-center {
+text-align: center;
+}
+
+.thick-end {
+border-bottom: 10px solid black;
+}
+
+.thin-end {
+border-bottom: 1px solid black;
 }

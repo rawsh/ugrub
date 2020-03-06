@@ -13,55 +13,57 @@ html
                     label.checkbox-label
                         input#checkfrank(type="checkbox")
                         span.checkbox-custom
-                    div.input-title frank
+                    div.input-title Frank
                 div.checkbox-container
                     label.checkbox-label
                         input#checkwoo(type="checkbox")
                         span.checkbox-custom
-                    div.input-title woo
+                    div.input-title Woo
                 div.checkbox-container
                     label.checkbox-label
                         input#checkberk(type="checkbox")
                         span.checkbox-custom
-                    div.input-title berk
+                    div.input-title Berk
                 div.checkbox-container
                     label.checkbox-label
                         input#checkhamp(type="checkbox")
                         span.checkbox-custom
-                    div.input-title hamp
+                    div.input-title Hamp
             div#type
                 div.checkbox-container
                     label.checkbox-label
                         input#checkbreakfast(type="checkbox")
                         span.checkbox-custom
-                    div.input-title breakfast
+                    div.input-title Breakfast
                 div.checkbox-container
                     label.checkbox-label
                         input#checklunch(type="checkbox")
                         span.checkbox-custom
-                    div.input-title lunch
+                    div.input-title Lunch
                 div.checkbox-container
                     label.checkbox-label
                         input#checkdinner(type="checkbox")
                         span.checkbox-custom
-                    div.input-title dinner
+                    div.input-title Dinner
                 div.checkbox-container
                     label.checkbox-label
                         input#checklatenight(type="checkbox")
                         span.checkbox-custom
-                    div.input-title late
+                    div.input-title Latenight
                 div.checkbox-container
                     label.checkbox-label
                         input#checkgrabngo(type="checkbox")
                         span.checkbox-custom
-                    div.input-title grabNgo
+                    div.input-title GrabNgo
         div#wrapper
             div#search
                 input#userinput(type='text' placeholder='Search ...')
                 div#autocomplete(type='text')
             div.container
                 div#suggestions
-        
+
+include nutrition.pug
+
 script.
     const name2url = JSON.parse("{\"Halal\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-hal.jpg\",\"Vegetarian\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-veg.jpg\",\"Antibiotic Free\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-antibfr.jpg\",\"Sustainable\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-sus.jpg\",\"Local\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-loc.jpg\",\"Vegan\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-vegan.jpg\",\"Whole Grain\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-whlgrn.jpg\"}");
     const num2location = {
@@ -77,16 +79,6 @@ script.
         "lunch": "Lunch",
         "dinner": "Dinner"
     };
-    //- var images = [];
-    //- function preload() {
-    //-     for (var i = 0; i < arguments.length; i++) {
-    //-         images[i] = new Image();
-    //-         images[i].src = preload.arguments[i];
-    //-     }
-    //- }
-
-    //-- usage --//
-    //- preload(Object.values(name2url));
     var data = !{JSON.stringify(data)}
     if (data) {        
         (function(){
@@ -231,15 +223,58 @@ script.
                         entry.appendChild(info);
                         entry.appendChild(diet);
                         suggestions.appendChild(entry);
+
+                        entry.children[1].addEventListener("click", function (e) {
+                            e = e || window.event;
+                            var target = e.target || e.srcElement,
+                                text = target.textContent || target.innerText; 
+                            console.log(target);
+                        });
                     }
 
                     try {
                         if (entry && match) {
-                            // console.log(data[results[i]]);
-                            entry.firstChild.textContent = data[results[i]].name;
+                            var name = data[results[i]].name;
+                            var parser = new DOMParser;
+                            var dom = parser.parseFromString(
+                                '<!doctype html><body>' + name,
+                                'text/html');
+                            var decodedString = dom.body.textContent;
+                            entry.firstChild.textContent = decodedString;
+                            
+                            // grab the nutrition shit
+                            entry.children[1].textContent = '';
+                            var nutdom = parser.parseFromString(
+                                '<!doctype html><body>' + nutritionHtml,
+                                'text/html');
+
+                            //console.log(nutdom.getElementsByClassName("data-calories")[0]);
+                            var nut = nutdom.body.firstChild;
+                            try {
+                                // big block of filling nutritions
+                                nut.getElementsByClassName("data-calories")[0].textContent = data[results[i]].attr["data-calories"];
+                                nut.getElementsByClassName("data-calories-from-fat")[0].textContent = data[results[i]].attr["data-calories-from-fat"];
+                                nut.getElementsByClassName("data-total-fat")[0].textContent = data[results[i]].attr["data-total-fat"];
+                                nut.getElementsByClassName("data-total-fat-dv")[0].textContent = data[results[i]].attr["data-total-fat-dv"];
+                                nut.getElementsByClassName("data-sat-fat-dv")[0].textContent = data[results[i]].attr["data-sat-fat-dv"];
+                                nut.getElementsByClassName("data-trans-fat")[0].textContent = data[results[i]].attr["data-trans-fat"];
+                                nut.getElementsByClassName("data-cholesterol")[0].textContent = data[results[i]].attr["data-cholesterol"];
+                                nut.getElementsByClassName("data-sodium")[0].textContent = data[results[i]].attr["data-sodium"];
+                                nut.getElementsByClassName("data-sodium-dv")[0].textContent = data[results[i]].attr["data-sodium-dv"];
+                                nut.getElementsByClassName("data-total-carb")[0].textContent = data[results[i]].attr["data-total-carb"];
+                                nut.getElementsByClassName("data-total-carb-dv")[0].textContent = data[results[i]].attr["data-total-carb-dv"];
+                                nut.getElementsByClassName("data-dietary-fiber")[0].textContent = data[results[i]].attr["data-dietary-fiber"];
+                                nut.getElementsByClassName("data-dietary-fiber-dv")[0].textContent = data[results[i]].attr["data-dietary-fiber-dv"];
+                                nut.getElementsByClassName("data-sugars")[0].textContent = data[results[i]].attr["data-sugars"];
+                                nut.getElementsByClassName("data-sugars-dv")[0].textContent = data[results[i]].attr["data-sugars-dv"];
+                                nut.getElementsByClassName("data-protein")[0].textContent = data[results[i]].attr["data-protein"];
+                                nut.getElementsByClassName("data-protein-dv")[0].textContent = data[results[i]].attr["data-protein-dv"];
+                            } catch (e) {
+                            }
+                            entry.children[1].append(nut);
+
                             entry.children[2].children[0].textContent = num2location[data[results[i]].location];
                             entry.children[2].children[1].textContent = type2name[data[results[i]].type] + " - " + data[results[i]].category;
-
                             let diet = data[results[i]].props;
 
                             if (diet) {
@@ -285,6 +320,11 @@ script.
                 if((event || window.event).keyCode === 13) {
                     this.value = autocomplete.value = autocomplete.current;
                 }
+            }
+
+            function expand_ingredients(event) {
+                var target = (event || window.event).target;
+                console.log(target);
             }
 
             //- function accept_suggestion(event){
