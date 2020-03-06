@@ -80,6 +80,25 @@ script.
         "dinner": "Dinner"
     };
 
+    var bhour = new Date();
+    bhour.setHours(7);
+
+    var lhour = new Date();
+    lhour.setHours(12);
+
+    var dhour = new Date();
+    dhour.setHours(18);
+
+    var latehour = new Date();
+    latehour.setHours(21);
+
+    const hours = {
+        "breakfast": bhour,
+        "lunch": lhour,
+        "dinner": dhour,
+        "late night": latehour
+    }
+
     // array diff function SO
     Array.prototype.contains = function(needle){
     for (var i=0; i<this.length; i++)
@@ -101,9 +120,22 @@ script.
                 cache: true,
                 async: true
             });
-
+            
             var locationFilter = localStorage.getItem('locationFilter');
             var typeFilter = localStorage.getItem('typeFilter');
+
+            function add_all_current(index) {
+                var res = []; // hacky
+                for(var i = 0; i < data.length; i++){
+                    if (index) {
+                        index.add(i, text);
+                    }
+                    var text = data[i].name;
+                    var type = data[i].type;
+                    res.push(i);
+                    add_node({}, i, res);
+                }
+            }
 
             if (null === locationFilter) {
                 locationFilter = {
@@ -144,9 +176,6 @@ script.
             var suggestions = document.getElementById("suggestions");
             var userinput = document.getElementById("userinput");
             var autocomplete = document.getElementById("autocomplete");
-
-            userinput.addEventListener("input", show_results, true);
-            suggestions.addEventListener("click", accept_suggestion, true);
             // userinput.addEventListener("keyup", accept_autocomplete, true);
 
             // filtering
@@ -185,24 +214,146 @@ script.
             }, false);
 
             // add data to the search
+            function setCurr() {
+                let time = Date();
+                let old = typeFilter;
 
-            for(var i = 0; i < data.length; i++){
-                var text = data[i].name;
-                index.add(i, text);
+                var currType;
+                typeFilter = {
+                    "breakfast": false,
+                    "lunch": false,
+                    "dinner": false,
+                    "late night": false,
+                    "grabngo": false
+                }
 
-                //- entry = document.createElement("div");
-                //- suggestions.appendChild(entry);
-                //- entry.textContent = data[i].name;
+                if (bhour < time && time < lhour) {
+                    typeFilter["breakfast"] = true;
+                    currType = "breakfast";
+                } else if (lhour < time && time < dhour) {
+                    typeFilter["lunch"] = true;
+                    currType = "lunch";
+                } else if (dhour < time && time < latehour) {
+                    typeFilter["dinner"] = true;
+                    currType = "dinner";
+                } else {
+                    typeFilter["late night"] = true;
+                    currType = "late night";
+                }
+                add_all_current(null);
+            }
+
+            // show_results();
+
+            userinput.addEventListener("input", show_results, true);
+            suggestions.addEventListener("click", accept_suggestion, true);
+
+            function add_node(childs, i, results) {
+                entry = childs[i];
+                var match = locationFilter[data[results[i]].location] && typeFilter[data[results[i]].type];
+                var checkExist = document.getElementById("e" + results[i]);
+
+                if (checkExist !== null && checkExist.classList.contains("expanded")) {
+                    checkExist.classList.remove("expanded");
+                }
+
+                if(!entry && match && checkExist === null){
+                    entry = document.createElement("div");
+                    entry.classList.add("grid-item");
+                    entry.id = "e" + results[i];
+                    
+                    let con = document.createElement("div");
+                    con.classList.add("grid-item-container");
+
+                    let ingredients = document.createElement("div");
+                    ingredients.classList.add("grid-item-ingredients");
+
+                    let location = document.createElement("div");
+                    let category = document.createElement("div");
+                    let info = document.createElement("div");
+                    info.classList.add("grid-item-info");
+                    info.appendChild(location);
+                    info.appendChild(category);
+
+                    let diet = document.createElement("div");
+                    diet.classList.add("grid-item-diet");
+
+                    entry.appendChild(con);
+                    entry.appendChild(ingredients);
+                    entry.appendChild(info);
+                    entry.appendChild(diet);
+                    suggestions.appendChild(entry);
+                }
+
+                try {
+                    if (entry && match) {
+                        var name = data[results[i]].name;
+                        var parser = new DOMParser;
+                        var dom = parser.parseFromString(
+                            '<!doctype html><body>' + name,
+                            'text/html');
+                        var decodedString = dom.body.textContent;
+                        entry.firstChild.textContent = decodedString;
+                        
+                        // grab the nutrition shit
+                        entry.children[1].textContent = '';
+                        var nutdom = parser.parseFromString(
+                            '<!doctype html><body>' + nutritionSmallHtml,
+                            'text/html');
+                        var nut = nutdom.body.firstChild;
+                        var rep = ["data-calories", "data-protein", "data-calories-from-fat", "data-cholesterol","data-sodium", "data-sat-fat-dv", "data-trans-fat","data-total-fat", 
+                        "data-total-fat-dv", "data-sodium-dv", "data-total-carb", "data-total-carb-dv", "data-dietary-fiber", "data-dietary-fiber-dv", "data-sugars"];
+
+                        // fill all fields in rep
+                        for (var j=0; j<rep.length; ++j) {
+                            try {
+                                nut.getElementsByClassName(rep[j])[0].textContent = data[results[i]].attr[rep[j]];
+                            } catch (e) {
+                                //console.log(e);
+                            }
+                        }
+
+                        // exception, take the number in serving size
+                        try {
+                            nut.getElementsByClassName("data-serving-size")[0].textContent = data[results[i]].attr["data-serving-size"][0];
+                        } catch (e) {
+                            console.log(e);
+                        }
+                        entry.children[1].append(nut);
+
+                        entry.children[2].children[0].textContent = num2location[data[results[i]].location];
+                        entry.children[2].children[1].textContent = type2name[data[results[i]].type] + " - " + data[results[i]].category;
+                        let diet = data[results[i]].props;
+
+                        if (diet) {
+                            entry.lastChild.textContent = '';
+                            diet.forEach(function (val) {
+                                if (name2url[val]) {
+                                    var img = new Image();
+                                    img.src = name2url[val];
+                                    img.title = val;
+                                    img.classList.add("diet-img");
+                                    entry.lastChild.append(img);
+                                }
+                            })
+                        }
+                    }
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+
+            function add_nodes(childs, len, results) {
+                for(var i=0; i < len; i++){
+                    add_node(childs, i, results);
+                }
             }
 
             function show_results() {
                 var searchform = document.getElementById("userinput");
                 var value = searchform.value;
 
-                index.search(value, {
-                    limit: 30,
-                    suggest: false
-                }, function(results) {
+                function removeDups(results) {
                     var entry, childs = suggestions.childNodes;
                     var i = 0, len = results.length;
                     var resIds = Object.values(results);
@@ -223,121 +374,7 @@ script.
                         }
                     }
 
-
-                    // check for multiple of the same dish
-                    
-                    // let dupLoc = {};
-
-                    // check which child can be kept
-
-                    for(var i=0; i < len; i++){
-                        entry = childs[i];
-                        var match = locationFilter[data[results[i]].location] && typeFilter[data[results[i]].type];
-                        var checkExist = document.getElementById("e" + results[i]);
-
-                        if (checkExist !== null && checkExist.classList.contains("expanded")) {
-                            checkExist.classList.remove("expanded");
-                        }
-
-                        if(!entry && match && checkExist === null){
-                            entry = document.createElement("div");
-                            entry.classList.add("grid-item");
-                            entry.id = "e" + results[i];
-                            
-                            let con = document.createElement("div");
-                            con.classList.add("grid-item-container");
-
-                            let ingredients = document.createElement("div");
-                            ingredients.classList.add("grid-item-ingredients");
-
-                            let location = document.createElement("div");
-                            let category = document.createElement("div");
-                            let info = document.createElement("div");
-                            info.classList.add("grid-item-info");
-                            info.appendChild(location);
-                            info.appendChild(category);
-
-                            let diet = document.createElement("div");
-                            diet.classList.add("grid-item-diet");
-
-                            entry.appendChild(con);
-                            entry.appendChild(ingredients);
-                            entry.appendChild(info);
-                            entry.appendChild(diet);
-                            suggestions.appendChild(entry);
-
-                            //- entry.children[1].addEventListener("click", function (e) {
-                            //-     e = e || window.event;
-                            //-     var target = e.target || e.srcElement,
-                            //-     text = target.textContent || target.innerText; 
-                            //- });
-                        }
-
-                        try {
-                            if (entry && match) {
-                                var name = data[results[i]].name;
-                                //- if (!(name in dupLoc)) {
-                                //-     dupLoc[name] = [];
-                                //- }
-                                //- dupLoc[name].push(entry.id);
-
-                                var parser = new DOMParser;
-                                var dom = parser.parseFromString(
-                                    '<!doctype html><body>' + name,
-                                    'text/html');
-                                var decodedString = dom.body.textContent;
-                                entry.firstChild.textContent = decodedString;
-                                
-                                // grab the nutrition shit
-                                entry.children[1].textContent = '';
-                                var nutdom = parser.parseFromString(
-                                    '<!doctype html><body>' + nutritionSmallHtml,
-                                    'text/html');
-                                var nut = nutdom.body.firstChild;
-                                var rep = ["data-calories", "data-protein", "data-calories-from-fat", "data-cholesterol","data-sodium", "data-sat-fat-dv", "data-trans-fat","data-total-fat", 
-                                "data-total-fat-dv", "data-sodium-dv", "data-total-carb", "data-total-carb-dv", "data-dietary-fiber", "data-dietary-fiber-dv", "data-sugars"]
-                            
-                                // fill all fields in rep
-                                for (var j=0; j<rep.length; ++j) {
-                                    try {
-                                        nut.getElementsByClassName(rep[j])[0].textContent = data[results[i]].attr[rep[j]];
-                                    } catch (e) {
-                                    }
-                                }
-
-                                // exception, take the number in serving size
-                                try {
-                                    nut.getElementsByClassName("data-serving-size")[0].textContent = data[results[i]].attr["data-serving-size"][0];
-                                } catch (e) {
-                                }
-                                entry.children[1].append(nut);
-
-                                entry.children[2].children[0].textContent = num2location[data[results[i]].location];
-                                entry.children[2].children[1].textContent = type2name[data[results[i]].type] + " - " + data[results[i]].category;
-                                let diet = data[results[i]].props;
-
-                                if (diet) {
-                                    // console.log(diet.length);
-                                    entry.lastChild.textContent = '';
-                                    diet.forEach(function (val) {
-                                        if (name2url[val]) {
-                                            var img = new Image();
-                                            img.src = name2url[val];
-                                            img.title = val;
-                                            img.classList.add("diet-img");
-                                            entry.lastChild.append(img);
-                                        }
-                                    })
-                                }
-                            }
-                        } catch (e) {
-                            //console.log(e);
-                        }
-                    }
-
-                    // TODO: handle duplicates
-                    //console.log(dupLoc)
-
+                    add_nodes(childs, len, results);
                     while(childs.length > len){
                         try {
                             childs[i].remove();
@@ -359,8 +396,35 @@ script.
                             autocomplete.value = autocomplete.current = value;
                         }
                     }
-                });
+                }
+
+                if (value === '') {
+                    //- cappin = true;
+
+                    var res = []; // hacky
+                    for(var i = 0; i < data.length; i++){
+                        res.push(i);
+                    }
+                    removeDups(res);
+                } else {
+                    //- if (cappin) {
+                    //-     console.log("e");
+                    //-     // never cap
+                    //-     var paras = suggestions.childNodes;
+                    //-     while(paras[0]) {
+                    //-         paras[0].parentNode.removeChild(paras[0]);
+                    //-     }
+                    //-     cappin = false;
+                    //- }
+
+                    index.search(value, {
+                        limit: 30,
+                        suggest: false
+                    }, removeDups);
+                }
             }
+
+            show_results();
 
             //- function accept_autocomplete(event){
             //-     if((event || window.event).keyCode === 13) {
