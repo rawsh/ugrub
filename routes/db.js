@@ -40,7 +40,7 @@ try {
     all = [];
 }
 
-router.get('/search', function(req, res, next) {
+router.get('/', function(req, res, next) {
     var hall = req.params.db;
     if (all !== []) {
         res.render("search", {data: all});
