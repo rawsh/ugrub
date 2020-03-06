@@ -62,7 +62,7 @@ html
             div.container
                 div#suggestions
 
-include nutrition.pug
+script(src="/nutrition.js")
 
 script.
     const name2url = JSON.parse("{\"Halal\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-hal.jpg\",\"Vegetarian\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-veg.jpg\",\"Antibiotic Free\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-antibfr.jpg\",\"Sustainable\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-sus.jpg\",\"Local\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-loc.jpg\",\"Vegan\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-vegan.jpg\",\"Whole Grain\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-whlgrn.jpg\"}");
@@ -79,14 +79,27 @@ script.
         "lunch": "Lunch",
         "dinner": "Dinner"
     };
+
+    // array diff function SO
+    Array.prototype.contains = function(needle){
+    for (var i=0; i<this.length; i++)
+        if (this[i] == needle) return true;
+
+    return false;
+    } 
+
+    Array.prototype.diff = function(compare) {
+        return this.filter(function(elem) {return !compare.contains(elem);})
+    }
+
     var data = !{JSON.stringify(data)}
     if (data) {        
         (function(){
             var index = new FlexSearch({
                 encode: "advanced",
                 tokenize: "reverse",
-                suggest: false,
-                cache: true
+                cache: true,
+                async: true
             });
 
             var locationFilter = localStorage.getItem('locationFilter');
@@ -133,8 +146,8 @@ script.
             var autocomplete = document.getElementById("autocomplete");
 
             userinput.addEventListener("input", show_results, true);
-            // suggestions.addEventListener("click", accept_suggestion, true);
-            userinput.addEventListener("keyup", accept_autocomplete, true);
+            suggestions.addEventListener("click", accept_suggestion, true);
+            // userinput.addEventListener("keyup", accept_autocomplete, true);
 
             // filtering
 
@@ -185,160 +198,226 @@ script.
             function show_results() {
                 var searchform = document.getElementById("userinput");
                 var value = searchform.value;
-                var results = index.search(value, {
-                    limit: 50,
+
+                index.search(value, {
+                    limit: 30,
                     suggest: false
-                });
+                }, function(results) {
+                    var entry, childs = suggestions.childNodes;
+                    var i = 0, len = results.length;
+                    var resIds = Object.values(results);
+                    childs = Array.prototype.slice.call(childs);
 
-                var entry, childs = suggestions.childNodes;
-                var i = 0, len = results.length;
-
-                for(; i < len; i++){
-                    entry = childs[i];
-                    var match = locationFilter[data[results[i]].location] && typeFilter[data[results[i]].type];
-
-                    if(!entry && match){
-                        entry = document.createElement("div");
-                        entry.classList.add("grid-item");
-                        entry.id = "l" + data[results[i]].location + "n" + i;
-                        
-                        let con = document.createElement("div");
-                        con.classList.add("grid-item-container");
-
-                        let ingredients = document.createElement("div");
-                        ingredients.classList.add("grid-item-ingredients");
-
-                        let location = document.createElement("div");
-                        let category = document.createElement("div");
-                        let info = document.createElement("div");
-                        info.classList.add("grid-item-info");
-                        info.appendChild(location);
-                        info.appendChild(category);
-
-                        let diet = document.createElement("div");
-                        diet.classList.add("grid-item-diet");
-
-                        entry.appendChild(con);
-                        entry.appendChild(ingredients);
-                        entry.appendChild(info);
-                        entry.appendChild(diet);
-                        suggestions.appendChild(entry);
-
-                        entry.children[1].addEventListener("click", function (e) {
-                            e = e || window.event;
-                            var target = e.target || e.srcElement,
-                                text = target.textContent || target.innerText; 
-                            console.log(target);
+                    if (childs.length > 0) {
+                        existing = childs.map(function (o) {
+                            return parseInt(o.id.slice(1));
                         });
-                    }
-
-                    try {
-                        if (entry && match) {
-                            var name = data[results[i]].name;
-                            var parser = new DOMParser;
-                            var dom = parser.parseFromString(
-                                '<!doctype html><body>' + name,
-                                'text/html');
-                            var decodedString = dom.body.textContent;
-                            entry.firstChild.textContent = decodedString;
-                            
-                            // grab the nutrition shit
-                            entry.children[1].textContent = '';
-                            var nutdom = parser.parseFromString(
-                                '<!doctype html><body>' + nutritionHtml,
-                                'text/html');
-
-                            //console.log(nutdom.getElementsByClassName("data-calories")[0]);
-                            var nut = nutdom.body.firstChild;
-                            try {
-                                // big block of filling nutritions
-                                nut.getElementsByClassName("data-calories")[0].textContent = data[results[i]].attr["data-calories"];
-                                nut.getElementsByClassName("data-calories-from-fat")[0].textContent = data[results[i]].attr["data-calories-from-fat"];
-                                nut.getElementsByClassName("data-total-fat")[0].textContent = data[results[i]].attr["data-total-fat"];
-                                nut.getElementsByClassName("data-total-fat-dv")[0].textContent = data[results[i]].attr["data-total-fat-dv"];
-                                nut.getElementsByClassName("data-sat-fat-dv")[0].textContent = data[results[i]].attr["data-sat-fat-dv"];
-                                nut.getElementsByClassName("data-trans-fat")[0].textContent = data[results[i]].attr["data-trans-fat"];
-                                nut.getElementsByClassName("data-cholesterol")[0].textContent = data[results[i]].attr["data-cholesterol"];
-                                nut.getElementsByClassName("data-sodium")[0].textContent = data[results[i]].attr["data-sodium"];
-                                nut.getElementsByClassName("data-sodium-dv")[0].textContent = data[results[i]].attr["data-sodium-dv"];
-                                nut.getElementsByClassName("data-total-carb")[0].textContent = data[results[i]].attr["data-total-carb"];
-                                nut.getElementsByClassName("data-total-carb-dv")[0].textContent = data[results[i]].attr["data-total-carb-dv"];
-                                nut.getElementsByClassName("data-dietary-fiber")[0].textContent = data[results[i]].attr["data-dietary-fiber"];
-                                nut.getElementsByClassName("data-dietary-fiber-dv")[0].textContent = data[results[i]].attr["data-dietary-fiber-dv"];
-                                nut.getElementsByClassName("data-sugars")[0].textContent = data[results[i]].attr["data-sugars"];
-                                nut.getElementsByClassName("data-sugars-dv")[0].textContent = data[results[i]].attr["data-sugars-dv"];
-                                nut.getElementsByClassName("data-protein")[0].textContent = data[results[i]].attr["data-protein"];
-                                nut.getElementsByClassName("data-protein-dv")[0].textContent = data[results[i]].attr["data-protein-dv"];
-                            } catch (e) {
+                        for (var i=0; i<existing.length; ++i) {
+                            var idx = childs.indexOf(existing[i]);
+                            // console.log(idx);
+                            if (idx === -1) {
+                                childs.splice(idx, 1);
+                                document.getElementById("e" + existing[i]).remove();
                             }
-                            entry.children[1].append(nut);
-
-                            entry.children[2].children[0].textContent = num2location[data[results[i]].location];
-                            entry.children[2].children[1].textContent = type2name[data[results[i]].type] + " - " + data[results[i]].category;
-                            let diet = data[results[i]].props;
-
-                            if (diet) {
-                                // console.log(diet.length);
-                                entry.lastChild.textContent = '';
-                                diet.forEach(function (val) {
-                                    if (name2url[val]) {
-                                        var img = new Image();
-                                        img.src = name2url[val];
-                                        img.title = val;
-                                        img.classList.add("diet-img");
-                                        entry.lastChild.append(img);
-                                    }
-                                })
-                            }
+                            // grab the nodes we want to delete
                         }
-                    } catch (e) {
-                        //console.log(e);
                     }
-                }
 
-                while(childs.length > len){
-                    childs[i].remove();
-                    //suggestions.removeChild(childs[i])
-                }
-                
-                // autocomplete stuff
-                if (data[results[0]]) {
-                    var first_result = data[results[0]].name;
-                    var match = first_result && first_result.toLowerCase().indexOf(value.toLowerCase());
 
-                    if(first_result && (match !== -1)){
-                        autocomplete.value = value + first_result.substring(match + value.length);
-                        autocomplete.current = first_result;
+                    // check for multiple of the same dish
+                    
+                    // let dupLoc = {};
+
+                    // check which child can be kept
+
+                    for(var i=0; i < len; i++){
+                        entry = childs[i];
+                        var match = locationFilter[data[results[i]].location] && typeFilter[data[results[i]].type];
+                        var checkExist = document.getElementById("e" + results[i]);
+
+                        if (checkExist !== null && checkExist.classList.contains("expanded")) {
+                            checkExist.classList.remove("expanded");
+                        }
+
+                        if(!entry && match && checkExist === null){
+                            entry = document.createElement("div");
+                            entry.classList.add("grid-item");
+                            entry.id = "e" + results[i];
+                            
+                            let con = document.createElement("div");
+                            con.classList.add("grid-item-container");
+
+                            let ingredients = document.createElement("div");
+                            ingredients.classList.add("grid-item-ingredients");
+
+                            let location = document.createElement("div");
+                            let category = document.createElement("div");
+                            let info = document.createElement("div");
+                            info.classList.add("grid-item-info");
+                            info.appendChild(location);
+                            info.appendChild(category);
+
+                            let diet = document.createElement("div");
+                            diet.classList.add("grid-item-diet");
+
+                            entry.appendChild(con);
+                            entry.appendChild(ingredients);
+                            entry.appendChild(info);
+                            entry.appendChild(diet);
+                            suggestions.appendChild(entry);
+
+                            //- entry.children[1].addEventListener("click", function (e) {
+                            //-     e = e || window.event;
+                            //-     var target = e.target || e.srcElement,
+                            //-     text = target.textContent || target.innerText; 
+                            //- });
+                        }
+
+                        try {
+                            if (entry && match) {
+                                var name = data[results[i]].name;
+                                //- if (!(name in dupLoc)) {
+                                //-     dupLoc[name] = [];
+                                //- }
+                                //- dupLoc[name].push(entry.id);
+
+                                var parser = new DOMParser;
+                                var dom = parser.parseFromString(
+                                    '<!doctype html><body>' + name,
+                                    'text/html');
+                                var decodedString = dom.body.textContent;
+                                entry.firstChild.textContent = decodedString;
+                                
+                                // grab the nutrition shit
+                                entry.children[1].textContent = '';
+                                var nutdom = parser.parseFromString(
+                                    '<!doctype html><body>' + nutritionSmallHtml,
+                                    'text/html');
+                                var nut = nutdom.body.firstChild;
+                                var rep = ["data-calories", "data-protein", "data-calories-from-fat", "data-cholesterol","data-sodium", "data-sat-fat-dv", "data-trans-fat","data-total-fat", 
+                                "data-total-fat-dv", "data-sodium-dv", "data-total-carb", "data-total-carb-dv", "data-dietary-fiber", "data-dietary-fiber-dv", "data-sugars"]
+                            
+                                // fill all fields in rep
+                                for (var j=0; j<rep.length; ++j) {
+                                    try {
+                                        nut.getElementsByClassName(rep[j])[0].textContent = data[results[i]].attr[rep[j]];
+                                    } catch (e) {
+                                    }
+                                }
+
+                                // exception, take the number in serving size
+                                try {
+                                    nut.getElementsByClassName("data-serving-size")[0].textContent = data[results[i]].attr["data-serving-size"][0];
+                                } catch (e) {
+                                }
+                                entry.children[1].append(nut);
+
+                                entry.children[2].children[0].textContent = num2location[data[results[i]].location];
+                                entry.children[2].children[1].textContent = type2name[data[results[i]].type] + " - " + data[results[i]].category;
+                                let diet = data[results[i]].props;
+
+                                if (diet) {
+                                    // console.log(diet.length);
+                                    entry.lastChild.textContent = '';
+                                    diet.forEach(function (val) {
+                                        if (name2url[val]) {
+                                            var img = new Image();
+                                            img.src = name2url[val];
+                                            img.title = val;
+                                            img.classList.add("diet-img");
+                                            entry.lastChild.append(img);
+                                        }
+                                    })
+                                }
+                            }
+                        } catch (e) {
+                            //console.log(e);
+                        }
                     }
-                    else{
-                        autocomplete.value = autocomplete.current = value;
+
+                    // TODO: handle duplicates
+                    //console.log(dupLoc)
+
+                    while(childs.length > len){
+                        try {
+                            childs[i].remove();
+                            suggestions.removeChild(childs[i])
+                        } catch (e) {
+                        }
                     }
-                }
+                    
+                    // autocomplete stuff
+                    if (data[results[0]]) {
+                        var first_result = data[results[0]].name;
+                        var match = first_result && first_result.toLowerCase().indexOf(value.toLowerCase());
+
+                        if(first_result && (match !== -1)) {
+                            autocomplete.value = value + first_result.substring(match + value.length);
+                            autocomplete.current = first_result;
+                        }
+                        else {
+                            autocomplete.value = autocomplete.current = value;
+                        }
+                    }
+                });
             }
 
-            function accept_autocomplete(event){
-                if((event || window.event).keyCode === 13) {
-                    this.value = autocomplete.value = autocomplete.current;
-                }
-            }
+            //- function accept_autocomplete(event){
+            //-     if((event || window.event).keyCode === 13) {
+            //-         this.value = autocomplete.value = autocomplete.current;
+            //-     }
+            //- }
 
             function expand_ingredients(event) {
                 var target = (event || window.event).target;
                 console.log(target);
             }
 
-            //- function accept_suggestion(event){
-            //-     var target = (event || window.event).target;
-            //-     userinput.value = autocomplete.value = target.textContent;
+            function accept_suggestion(event){
+                var target = (event || window.event).target;
+                // autocomplete.value = 
+                autocomplete.value = target.textContent;
+                var indx = parseInt(target.id.slice(1));
+                
+                if (!(target.classList.contains("expanded")) && indx) {
+                    while (suggestions.children.length > 1) {
+                        // console.log(suggestions.firstChild.id);
+                        if (suggestions.firstChild.id !== target.id) {
+                            suggestions.removeChild(suggestions.firstChild);
+                        } else if (suggestions.firstChild !== suggestions.lastChild) {
+                            suggestions.removeChild(suggestions.lastChild);
+                        }
+                    }
+                    // grab the nutrition shit (full template)
+                    var parser = new DOMParser;
+                    suggestions.firstChild.children[1].textContent = '';
+                    var nutdom = parser.parseFromString(
+                        '<!doctype html><body>' + nutritionHtml,
+                        'text/html');
+                    var nut = nutdom.body.firstChild;
+                    var rep = ["data-calories", "data-protein", "data-calories-from-fat", "data-cholesterol","data-sodium", "data-sat-fat-dv", "data-trans-fat","data-total-fat", 
+                    "data-total-fat-dv", "data-sodium-dv", "data-total-carb", "data-total-carb-dv", "data-dietary-fiber", "data-dietary-fiber-dv", "data-sugars"]
 
-            //-     while (suggestions.children.length > 1) {
-            //-         if (suggestions.lastChild.innerText !== autocomplete.value) {
-            //-             suggestions.removeChild(suggestions.lastChild);
-            //-         } else if (suggestions.firstChild !== suggestions.lastChild) {
-            //-             suggestions.removeChild(suggestions.firstChild);
-            //-         }
-            //-     }
-            //-     return false;
-            //- }
+                    // fill all fields in rep
+                    for (var i=0; i<rep.length; ++i) {
+                        try {
+                            nut.getElementsByClassName(rep[i])[0].textContent = data[indx].attr[rep[i]];
+                        } catch (e) {
+                            // console.log(e);
+                        }
+                    }
+                    // exception, take the number in serving size
+                    try {
+                        nut.getElementsByClassName("data-serving-size")[0].textContent = data[indx].attr["data-serving-size"][0];
+                    } catch (e) {
+                    }
+                    suggestions.firstChild.children[1].append(nut);
+                    suggestions.firstChild.classList.add("expanded");
+                } else if (indx) {
+                    target.remove();
+                    show_results();
+                }
+                return false;
+            }
         }());
     }

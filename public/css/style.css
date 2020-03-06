@@ -44,6 +44,8 @@ body {
     background-color: transparent;
     -webkit-appearance: none;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    outline: none;
+    border: none;
 }
 
 #userinput {
@@ -74,8 +76,8 @@ body {
     width: 220px;
     min-width: 220px;
     padding: 15px;
-    flex: 0 0 20%;
-    flex-basis: 20%;
+    flex: 0 0 33.3%;
+    flex-basis: 33.3%;
     -ms-flex: auto;
     position: relative;
     box-sizing: border-box;
@@ -114,27 +116,45 @@ body {
     order: -1;
 }
 
-
 .grid-item-info > div:nth-child(2) {
     flex: 1;
     text-align: right;
 }
 .grid-item-info {
     padding: 8px;
-    flex: 1;
+    flex: 0;
     order: -1;
     display: flex;
     flex-wrap: wrap;
 }
 
+/* when there is an expanded node */
+/* .grid-item:nth-last-child(1):first-child {
+    height: 620px;
+}
+
+.grid-item:nth-last-child(1):first-child .grid-item-ingredients {
+    max-height: -1;
+    overflow: auto;
+} */
+
+.expanded {
+    height: 585px;
+}
+.expanded  .grid-item-ingredients {
+    max-height: -1;
+    overflow: auto;
+}
+
 .grid-item-ingredients {
     width: 100%;
-    flex: 0;
-    max-height: 69px;
-    overflow: hidden;
+    flex: 1;
+    max-height: 444px;
     min-height: 69px;
+    overflow: hidden;
     /* border-top: 2px solid rgba(0,0,0,0.2); */
     border-bottom: 2px solid rgba(0,0,0,0.2);
+    transition: width 1s, height 1s;
 }
 
 .grid-item-diet {
@@ -183,14 +203,14 @@ body {
         flex-wrap: wrap;
     }
     #filters {
-        margin: auto;
+        margin: 0 auto;
     }
     #userinput {
         width: calc(100% - 20px);
     }
-    #wrapper {
-        max-height: calc(100% - 220px);
-    }
+    /* #wrapper {
+        max-height: calc(100% - 142px);
+    } */
 }
 
 /* app */
@@ -335,6 +355,9 @@ text-align: left;
 padding: 0.25rem 0;
 border-top: 1px solid rgba(0,0,0,0.15);
 white-space: nowrap;
+}
+.performance-facts__table td:nth-child(2), .performance-facts__table--grid td:nth-child(2) {
+text-align: center;
 }
 .performance-facts__table td:last-child, .performance-facts__table--small td:last-child, .performance-facts__table--grid td:last-child {
 text-align: right;

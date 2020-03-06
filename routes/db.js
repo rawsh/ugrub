@@ -81,7 +81,7 @@ router.get('/updatedb/:db', function(req, res, next) {
         .then(q => q.json())
         .then((json) => {
 
-            fs.writeFileSync("./html" + hall + ".json", JSON.stringify(json));
+            // fs.writeFileSync("./html" + hall + ".json", JSON.stringify(json));
 
             let dishes = {
                 date: day,
