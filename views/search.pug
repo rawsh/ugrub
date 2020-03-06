@@ -91,13 +91,10 @@ script.
 
     var bhour = new Date();
     bhour.setHours(7);
-
     var lhour = new Date();
     lhour.setHours(12);
-
     var dhour = new Date();
     dhour.setHours(18);
-
     var latehour = new Date();
     latehour.setHours(21);
 
@@ -113,15 +110,31 @@ script.
     for (var i=0; i<this.length; i++)
         if (this[i] == needle) return true;
 
-    return false;
+        return false;
     } 
-
     Array.prototype.diff = function(compare) {
         return this.filter(function(elem) {return !compare.contains(elem);})
     }
 
-    var data = !{JSON.stringify(data)}
-    if (data) {        
+    // check the date?
+
+    //- var curr = !{JSON.stringify(curr)};
+    //- var dates = !{JSON.stringify(dates)};
+
+    //- if (dates !== null) {
+    //-     var vals = Object.values(dates);
+    //-     for (var i=0; i<vals.length; ++i) {
+    //-         if (vals[i] !== curr) {
+    //-             console.log(vals[i]);
+    //-         }
+    //-     }
+    //- } else {
+    //-     var hallday = !{JSON.stringify(hallday)};
+    //-     console.log(hallday);
+    //- }
+
+    var data = !{JSON.stringify(data)};
+    if (data) {    
         (function(){
             var index = new FlexSearch({
                 encode: "advanced",
@@ -141,7 +154,6 @@ script.
                     }
                 }
             }
-
             add_all_current(index);
 
             if (null === locationFilter) {
