@@ -65,7 +65,16 @@ html
 script(src="/nutrition.js")
 
 script.
-    const name2url = JSON.parse("{\"Halal\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-hal.jpg\",\"Vegetarian\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-veg.jpg\",\"Antibiotic Free\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-antibfr.jpg\",\"Sustainable\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-sus.jpg\",\"Local\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-loc.jpg\",\"Vegan\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-vegan.jpg\",\"Whole Grain\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-whlgrn.jpg\"}");
+    //const name2url = JSON.parse("{\"Halal\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-hal.jpg\",\"Vegetarian\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-veg.jpg\",\"Antibiotic Free\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-antibfr.jpg\",\"Sustainable\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-sus.jpg\",\"Local\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-loc.jpg\",\"Vegan\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-vegan.jpg\",\"Whole Grain\":\"http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-whlgrn.jpg\"}");
+    const name2local = {
+        "Halal": "/icons/icon-hal.jpg",
+        "Vegetarian": "/icons/icon-veg.jpg",
+        "Antibiotic Free": "/icons/icon-antibfr.jpg",
+        "Sustainable": "/icons/icon-sus.jpg",
+        "Local": "/icons/icon-loc.jpg",
+        "Vegan": "/icons/icon-vegan.jpg",
+        "Whole Grain": "/icons/icon-whlgrn.jpg"
+    };
     const num2location = {
         "1": "Worcester",
         "2": "Frank",
@@ -326,9 +335,9 @@ script.
                         if (diet) {
                             entry.lastChild.textContent = '';
                             diet.forEach(function (val) {
-                                if (name2url[val]) {
+                                if (name2local[val]) {
                                     var img = new Image();
-                                    img.src = name2url[val];
+                                    img.src = name2local[val];
                                     img.title = val;
                                     img.classList.add("diet-img");
                                     entry.lastChild.append(img);
@@ -399,25 +408,12 @@ script.
 
                 if (value === '') {
                     //- cappin = true;
-
                     var res = []; // hacky
                     for(var i = 0; i < data.length; i++){
                         res.push(i);
                     }
                     removeDups(res);
                 } else {
-                    //- if (cappin) {
-                    //-     console.log("e");
-                    //-     // never cap
-                    //-     var paras = suggestions.childNodes;
-                    //-     while(paras[0]) {
-                    //-         paras[0].parentNode.removeChild(paras[0]);
-                    //-     }
-                    //-     cappin = false;
-                    //- }
-
-                    // console.log(value);
-
                     index.search(value, {
                         limit: 30,
                         suggest: false
@@ -425,7 +421,7 @@ script.
                 }
             }
 
-            show_results()
+            show_results();
 
             //- function accept_autocomplete(event){
             //-     if((event || window.event).keyCode === 13) {

@@ -13,13 +13,13 @@ body {
 }
 
 .app {
-    background: url("http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-hal.jpg") no-repeat -9999px -9999px;
-    background: url("http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-veg.jpg") no-repeat -9999px -9999px,
-            url("http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-antibfr.jpg") no-repeat -9999px -9999px,
-            url("http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-sus.jpg") no-repeat -9999px -9999px,
-            url("http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-loc.jpg") no-repeat -9999px -9999px,
-            url("http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-vegan.jpg") no-repeat -9999px -9999px,
-            url("http://af-foodpro1.campus.ads.umass.edu/foodpro/LegendImages/icon-whlgrn.jpg") no-repeat -9999px -9999px;
+    background: url("/icons/icon-hal.jpg") no-repeat -9999px -9999px;
+    background: url("/icons/icon-veg.jpg") no-repeat -9999px -9999px,
+            url("/icons/icon-antibfr.jpg") no-repeat -9999px -9999px,
+            url("/icons/icon-sus.jpg") no-repeat -9999px -9999px,
+            url("/icons/icon-loc.jpg") no-repeat -9999px -9999px,
+            url("/icons/icon-vegan.jpg") no-repeat -9999px -9999px,
+            url("/icons/icon-whlgrn.jpg") no-repeat -9999px -9999px;
 }
 
 #wrapper {
